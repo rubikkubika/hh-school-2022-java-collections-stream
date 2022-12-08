@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 
 /*
 Сложность сортировки O(n * log n)
+
  */
 public class Task1 {
 
