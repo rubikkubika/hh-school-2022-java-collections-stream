@@ -19,8 +19,8 @@ public class Task2 {
                                                      Collection<Person> persons2,
                                                      int limit) {
     return Stream.concat(persons1.stream(),persons2.stream())
-            .limit(limit)
             .sorted(Comparator.comparing(Person::getCreatedAt))
+            .limit(limit)
             .toList();
   }
 }

@@ -4,6 +4,7 @@ import common.Area;
 import common.Person;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -18,10 +19,13 @@ public class Task6 {
   public static Set<String> getPersonDescriptions(Collection<Person> persons,
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
-    List<Area> areaList = areas.stream().toList();
+
+      Map<Integer, Area> areaIdMap = areas.stream()
+              .collect(Collectors.toMap(Area::getId, Function.identity()));
+
     return persons.stream()
             .flatMap(person -> personAreaIds.get(person.getId()).stream()
-                    .map(area -> person.getFirstName() + " - "+ areaList.get(area -1).getName()))
+                    .map(areaId -> person.getFirstName() + " - "+ areaIdMap.get(areaId).getName()))
             .collect(Collectors.toSet());
 
 

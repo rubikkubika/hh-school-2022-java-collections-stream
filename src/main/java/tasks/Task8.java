@@ -3,6 +3,7 @@ package tasks;
 import common.Person;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,19 +48,11 @@ public class Task8 {
     1.Заменил второй Second Name на Middle Name
      */
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
 
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getMiddleName() != null) {
-      result += " " + person.getMiddleName();
-    }
-    return result;
+    return Stream.of(person.getSecondName(),person.getMiddleName() ,person.getFirstName())
+            .filter(Objects::nonNull)
+            .filter(Predicate.not(String::isEmpty))
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
@@ -69,7 +62,7 @@ public class Task8 {
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
 
     return persons.stream()
-            .collect(Collectors.toMap(Person::getId,Person::getFirstName));
+            .collect(Collectors.toMap(Person::getId,Person::getFirstName,(person, duplicatePerson)-> person));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
@@ -90,9 +83,9 @@ public class Task8 {
 
      */
   public long countEven(Stream<Integer> numbers) {
-    count = numbers
+
+    return  numbers
             .filter(num -> num % 2 == 0)
             .count();
-    return  count;
   }
 }
