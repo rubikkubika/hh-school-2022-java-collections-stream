@@ -1,12 +1,9 @@
 package tasks;
 
 import common.Person;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,68 +17,75 @@ P.S. функции тут разные и рабочие (наверное), н
 P.P.S Здесь ваши правки желательно прокомментировать (можно на гитхабе в пулл реквесте)
  */
 public class Task8 {
-
   private long count;
-
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+
+  /*
+  1. Поправил стиль стрима в return
+  2. Заменил Collectors to List на toList
+  3. Удалил remove, добавил skip  return
+  4. У,рал проверку на пустой список, т.к. если на вход даеем пустой список то стрим и вернет пустой список
+   */
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+
+    return persons.stream()
+            .skip(1)
+            .map(Person::getFirstName)
+            .toList();
   }
 
   //ну и различные имена тоже хочется
+     /*
+    1. Удалил .distinct() из return,т.к. мы собираем все в Set
+    2. Заменил в return стрим на констурктор Hashset
+     */
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
+    /*
+    1.Заменил второй Second Name на Middle Name
+     */
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
 
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+    return Stream.of(person.getSecondName(),person.getMiddleName() ,person.getFirstName())
+            .filter(Objects::nonNull)
+            .filter(Predicate.not(String::isEmpty))
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
+    /*
+    1. Переписал создание словаря с помощью Stream API
+     */
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+
+    return persons.stream()
+            .collect(Collectors.toMap(Person::getId,Person::getFirstName,(person, duplicatePerson)-> person));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
+    /*
+    1.Переписал проверку с помощью Stream APi, использовал создание СЕТ,чтобы улучшить производительность
+     */
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+
+    return persons1.stream()
+            .anyMatch(new HashSet<>(persons2)::contains);
   }
 
-  //...
+  //Посчитать четные числа
+    /*
+    1.Дописал коммент о том, что делает метод
+    2.Переписал Stream api с помощью count
+
+
+     */
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+
+    return  numbers
+            .filter(num -> num % 2 == 0)
+            .count();
   }
 }
